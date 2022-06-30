@@ -24,9 +24,33 @@ async function run() {
   try {
     await client.connect();
 
+    app.get("/billing-list", async (req, res) => {
+      const query = {};
+      const result = await bilCollection.find(query).toArray();
+      res.send(result);
+    });
+
     app.post("/add-billing", async (req, res) => {
       const bill = req.body;
       const result = await bilCollection.insertOne(bill);
+      res.send(result);
+    });
+
+    app.put("/update-billing/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const updateBill = req.body;
+      const updateDoc = {
+        $set: updateBill,
+      };
+      const result = await bilCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    app.delete("/delete-billing/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const result = await bilCollection.deleteOne(filter);
       res.send(result);
     });
   } finally {
