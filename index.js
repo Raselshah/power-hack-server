@@ -19,7 +19,22 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 const bilCollection = client.db("all-bill").collection("bill");
+const userCollection = client.db("all-user").collection("users");
 
+function verifyJWT(req, res, next) {
+  const authorization = req.headers.authorization;
+  if (!authorization) {
+    return res.status(401).send({ message: "UnAuthorized" });
+  }
+  const token = authorization.split(" ")[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
+    if (err) {
+      return res.status(403).send({ message: "Forbidden access" });
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
 async function run() {
   try {
     await client.connect();
@@ -33,6 +48,12 @@ async function run() {
     app.post("/add-billing", async (req, res) => {
       const bill = req.body;
       const result = await bilCollection.insertOne(bill);
+      res.send(result);
+    });
+
+    app.post("/register", async (req, res) => {
+      const user = req.body;
+      const result = await userCollection.insertOne(user);
       res.send(result);
     });
 
