@@ -18,11 +18,17 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
-const collection = client.db("test").collection("devices");
+const bilCollection = client.db("all-bill").collection("bill");
 
 async function run() {
   try {
     await client.connect();
+
+    app.post("/add-billing", async (req, res) => {
+      const bill = req.body;
+      const result = await bilCollection.insertOne(bill);
+      res.send(result);
+    });
   } finally {
     //
   }
