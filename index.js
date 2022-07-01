@@ -40,8 +40,23 @@ async function run() {
     await client.connect();
 
     app.get("/billing-list", async (req, res) => {
+      console.log(req.query);
+      const page = parseInt(req.query.page);
+      const count = parseInt(req.query.count);
+      console.log(count);
       const query = {};
-      const result = await bilCollection.find(query).toArray();
+      const bill = await bilCollection.find(query);
+
+      let result;
+      if (page) {
+        result = await bill
+          .skip(page * count)
+          .limit(count)
+          .toArray();
+      } else {
+        result = await bill.limit(count).toArray();
+      }
+
       res.send(result);
     });
 
@@ -85,6 +100,11 @@ async function run() {
       const filter = { _id: ObjectId(id) };
       const result = await bilCollection.deleteOne(filter);
       res.send(result);
+    });
+
+    app.get("/bill", async (req, res) => {
+      const bills = await bilCollection.estimatedDocumentCount();
+      res.send({ bills });
     });
   } finally {
     //
