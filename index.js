@@ -57,6 +57,18 @@ async function run() {
       res.send(result);
     });
 
+    app.get("/user", async (req, res) => {
+      const query = {};
+      const result = await userCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.get("/login/:email", async (req, res) => {
+      const email = req.params.email;
+      const result = await userCollection.findOne({ email: email });
+      res.send(result);
+    });
+
     app.put("/update-billing/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: ObjectId(id) };
